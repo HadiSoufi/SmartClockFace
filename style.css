@@ -17,10 +17,17 @@ body {
 body {
     display: -webkit-flex;
     display: flex;
-    -webkit-flex-direction: row;
-    flex-direction: row;
     -webkit-justify-content: center;
     justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+#main-container {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
     -webkit-align-items: flex-start;
     align-items: flex-start;
 }

@@ -67,8 +67,18 @@ async function updateWeather() {
         document.getElementById('weather-text').textContent = `${temp}${unitSymbol}`;
 
         const iconKey = getIconFromWMO(wmoCode);
-        const svgString = `<svg viewBox="0 0 24 24">${ICONS[iconKey]}</svg>`;
-        document.getElementById('weather-icon').innerHTML = svgString;
+        const iconName = ICONS[iconKey];
+        const weatherIconEl = document.getElementById('weather-icon');
+        weatherIconEl.innerHTML = ''; // Clear previous icon
+
+        // Use Lucide's createElement to generate the actual SVG
+        if (typeof lucide !== 'undefined' && lucide.icons && lucide.icons[iconName]) {
+            const svgElement = lucide.createElement(lucide.icons[iconName]);
+            weatherIconEl.appendChild(svgElement);
+        } else {
+            // Fallback: show icon name as text if Lucide fails to load
+            weatherIconEl.textContent = iconName;
+        }
 
         // Clear any previous errors
         weatherError = null;

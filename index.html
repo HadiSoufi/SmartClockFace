@@ -19,50 +19,57 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: var(--font-main);
+            /* Change to Row for side-by-side layout */
             display: flex;
-            flex-direction: column;
+            flex-direction: row; 
             justify-content: center;
             align-items: center;
+            gap: 4vw; /* Space between clock and weather */
             overflow: hidden;
         }
 
         #clock-container {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align date against the time */
         }
 
         #time {
-            font-size: 25vw;
+            /* Reduced slightly to make room for weather */
+            font-size: 22vw; 
             font-weight: 700;
-            line-height: 1;
+            line-height: 0.9;
             letter-spacing: -0.05em;
         }
 
         #date {
-            font-size: 5vw;
+            font-size: 4vw;
             font-weight: 300;
-            margin-top: 10px;
+            margin-top: 5px;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.1em;
             opacity: 0.8;
         }
 
         #weather-container {
-            position: absolute;
-            bottom: 20px;
+            /* No longer absolute positioned */
             display: flex;
+            flex-direction: column; /* Stack Icon above Temp */
             align-items: center;
-            gap: 15px;
+            justify-content: center;
+            min-width: 15vw; /* Prevent jitter when values change */
         }
 
         #weather-icon svg {
-            width: 8vw;
-            height: 8vw;
+            width: 10vw;
+            height: 10vw;
             fill: var(--text-color);
+            margin-bottom: 2px;
         }
 
         #weather-text {
-            font-size: 4vw;
-            font-weight: 300;
+            font-size: 5vw;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -95,14 +102,13 @@
             partlycloudy: '<circle cx="12" cy="12" r="3"/><path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-0.104,0.006-0.207,0.014-0.31C10.634,12.444,9.336,12,8,12c-2.761,0-5,2.239-5,5s2.239,5,5,5h9.5c2.485,0,4.5-2.015,4.5-4.5S19.985,13,17.5,13"/>'
         };
 
-        // WMO Weather Codes to Icon Keys
         function getIconFromWMO(code) {
             if (code === 0) return 'sunny';
             if ([1, 2, 3].includes(code)) return 'partlycloudy';
             if ([45, 48].includes(code)) return 'cloudy';
             if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return 'rainy';
-            if ([71, 73, 75, 77, 85, 86].includes(code)) return 'rainy'; // Snow handled as generic precip/rainy for simplicity
-            if ([95, 96, 99].includes(code)) return 'rainy'; // Thunderstorm
+            if ([71, 73, 75, 77, 85, 86].includes(code)) return 'rainy'; 
+            if ([95, 96, 99].includes(code)) return 'rainy';
             return 'default';
         }
 

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Face</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --font-main: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #clock-container {
+            text-align: center;
+        }
+
+        #time {
+            font-size: 25vw;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+
+        #date {
+            font-size: 5vw;
+            font-weight: 300;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            opacity: 0.8;
+        }
+
+        #weather-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #weather-icon svg {
+            width: 8vw;
+            height: 8vw;
+            fill: var(--text-color);
+        }
+
+        #weather-text {
+            font-size: 4vw;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="clock-container">
+        <div id="time">00:00</div>
+        <div id="date">LOADING...</div>
+    </div>
+
+    <div id="weather-container">
+        <div id="weather-icon"></div>
+        <div id="weather-text">--°</div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            lat: 35.2271,  // Charlotte, NC
+            long: -80.8431,
+            unit: 'fahrenheit' // 'celsius' or 'fahrenheit'
+        };
+        // ---------------------
+
+        const ICONS = {
+            default: '<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>',
+            sunny: '<circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+            cloudy: '<path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-0.104,0.006-0.207,0.014-0.31C10.634,12.444,9.336,12,8,12c-2.761,0-5,2.239-5,5s2.239,5,5,5h9.5c2.485,0,4.5-2.015,4.5-4.5S19.985,13,17.5,13h-0.354C17.054,12.691,17,12.352,17,12c0-3.313-2.687-6-6-6c-2.923,0-5.362,2.112-5.885,4.896C5.021,10.957,5,11.028,5,11.101"/>',
+            rainy: '<path d="M16 13c0-2.2-1.8-4-4-4s-4 1.8-4 4c0 .2 0 .4.1.6C6.2 14.1 5 15.9 5 18c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4 0-1.9-1.3-3.4-3-3.9.1-.3.1-.7.1-1.1z M8 23v2 M12 23v2 M16 23v2"/>',
+            partlycloudy: '<circle cx="12" cy="12" r="3"/><path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-0.104,0.006-0.207,0.014-0.31C10.634,12.444,9.336,12,8,12c-2.761,0-5,2.239-5,5s2.239,5,5,5h9.5c2.485,0,4.5-2.015,4.5-4.5S19.985,13,17.5,13"/>'
+        };
+
+        // WMO Weather Codes to Icon Keys
+        function getIconFromWMO(code) {
+            if (code === 0) return 'sunny';
+            if ([1, 2, 3].includes(code)) return 'partlycloudy';
+            if ([45, 48].includes(code)) return 'cloudy';
+            if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return 'rainy';
+            if ([71, 73, 75, 77, 85, 86].includes(code)) return 'rainy'; // Snow handled as generic precip/rainy for simplicity
+            if ([95, 96, 99].includes(code)) return 'rainy'; // Thunderstorm
+            return 'default';
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+            document.getElementById('date').textContent = dateStr;
+        }
+
+        async function updateWeather() {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.lat}&longitude=${CONFIG.long}&current=temperature_2m,weather_code&temperature_unit=${CONFIG.unit}`;
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Weather API Failed');
+
+                const data = await response.json();
+                const temp = Math.round(data.current.temperature_2m);
+                const wmoCode = data.current.weather_code;
+                const unitSymbol = data.current_units.temperature_2m;
+
+                document.getElementById('weather-text').textContent = `${temp}${unitSymbol}`;
+                
+                const iconKey = getIconFromWMO(wmoCode);
+                const svgString = `<svg viewBox="0 0 24 24">${ICONS[iconKey]}</svg>`;
+                document.getElementById('weather-icon').innerHTML = svgString;
+
+            } catch (error) {
+                console.error("Weather fetch failed:", error);
+                document.getElementById('weather-text').textContent = "--";
+            }
+        }
+
+        updateClock();
+        updateWeather();
+        setInterval(updateClock, 1000);
+        setInterval(updateWeather, 900000); // 15 mins
+    </script>
+</body>
+</html>

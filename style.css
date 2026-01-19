@@ -21,8 +21,8 @@ body {
     flex-direction: row;
     -webkit-justify-content: center;
     justify-content: center;
-    -webkit-align-items: center;
-    align-items: center;
+    -webkit-align-items: flex-start;
+    align-items: flex-start;
 }
 
 #clock-container {
@@ -36,14 +36,14 @@ body {
 }
 
 #time {
-    font-size: 22vw;
+    font-size: 28vw;
     font-weight: 700;
     line-height: 0.9;
     letter-spacing: -0.05em;
 }
 
 #date {
-    font-size: 4vw;
+    font-size: 5vw;
     font-weight: 300;
     margin-top: 5px;
     text-transform: uppercase;
@@ -64,8 +64,8 @@ body {
 }
 
 #weather-icon svg {
-    width: 10vw;
-    height: 10vw;
+    width: 14vw;
+    height: 14vw;
     stroke: #ffffff;
     stroke-width: 1.5;
     fill: none;
@@ -73,6 +73,6 @@ body {
 }
 
 #weather-text {
-    font-size: 5vw;
+    font-size: 7vw;
     font-weight: 400;
 }

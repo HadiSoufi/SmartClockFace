@@ -39,7 +39,7 @@ body {
     flex-direction: column;
     -webkit-align-items: flex-start;
     align-items: flex-start;
-    margin-right: 8vw;
+    margin-right: 10vw;
 }
 
 #time {
